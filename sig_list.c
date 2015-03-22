@@ -3,6 +3,7 @@
 
 #include <stdlib.h> 
 #include <stdio.h>
+#include <stdbool.h>
 struct node {
 	int data;
 	struct node *next;
@@ -13,6 +14,12 @@ void sig_list_init(struct node *head)
 {
 	head->data = 0;
 	head->next = NULL;
+}
+
+/*单链表是否为空表*/
+bool is_empty_sig_list(struct node *head)
+{
+	return head->next == NULL ? true: false;
 }
 
 /*单链表头部加入结点*/
@@ -92,17 +99,72 @@ int sig_list_tail(struct node *head, int num)
 	return 0;
 }
 
+/*判断链表中一个结点是否为最后一个结点*/
+static bool __is_last_sig_list(struct node *node)
+{
+	return node->next ? true: false;
+}
+
+/*删除curNode指向的结点*/
+static int __sig_list_del_node(struct node *preNode, struct node *curNode)
+{
+	if(preNode->next != NULL)
+	{
+		preNode->next = curNode->next;
+		curNode->next = curNode;
+		free(curNode);
+		return 0;
+	}
+	/*未完*/
+}
+
 /* 单链表删除某个结点 */
 int sig_list_del_node(struct node *head, int num)
 {
-	struct node *back = NULL;
+	struct node *prev = NULL;
 	struct node *cur = NULL;
 
-
-	/* 如果node是最后的结点 */
-	/* 如果只有head和node两个结点 */
+	if(is_empty_sig_list(head)) return -1;
+	for(prev = head, cur = head->next; cur->next != NULL; prev = cur, cur = cur->next)
+	{
+		/*删除的结点为链表中间的结点*/
+		if(cur->data == num)
+		{
+			prev->next = cur->next;
+			cur->next = cur;
+			free(cur);
+			return 0;
+		}
+	}
+	/*删除的结点为最后一个结点*/
+	if(cur->data == num)
+	{
+		printf("删除的结点为最后一个结点\n");
+		prev->next = NULL;
+		cur->next = cur;
+		free(cur);
+		return 0;
+	}
 
 	return 0;
+}
+
+/*销毁单链表*/
+int sig_list_destroy(struct node *head)
+{
+	struct node *temp = NULL;
+	struct node *cur = NULL;
+	struct node *prev = NULL;
+
+	/*单链表为空，释放头结点*/
+	if(is_empty_sig_list(head))
+	{
+		head->next = head;
+		free(head);
+		return 0;
+	}
+
+
 }
 
 /* 判断单链表有环还是无环 */
@@ -133,6 +195,7 @@ int main(void)
 		return -1;
 	}
 	sig_list_init(head);
+	printf("单链表是否为空:%d \n", is_empty_sig_list(head));
 
 	sig_list_add(head, 1);
 	sig_list_add(head, 2);
@@ -140,6 +203,12 @@ int main(void)
 	sig_list_tail(head, 100);
 	sig_list_for_each_opr(head, print_node);
 	printf("true or false:%d\n", sig_list_check_loop(head));
+	printf("单链表是否为空:%d \n", is_empty_sig_list(head));
+	sig_list_del_node(head, 30);
+	sig_list_for_each_opr(head, print_node);
+	sig_list_del_node(head, 100);
+	sig_list_for_each_opr(head, print_node);
+	
 
 	return 0;
 }
